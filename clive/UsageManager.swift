@@ -90,8 +90,8 @@ class UsageManager {
                     send "\\r"
                     exp_continue
                 }
-                -re "Current week.*\\n.*\\d+%" {
-                    # Got the data we need
+                -re "Current week \\(all models\\).*\\n.*\\d+%" {
+                    # Got the data we need (all models stat)
                 }
                 timeout {
                     exit 1
@@ -226,10 +226,11 @@ func parseUsageOutput(_ output: String) -> UsageInfo? {
         }
     }
 
-    if let lastWeeklyRange = output.range(of: "Current week", options: .backwards) {
-        let afterWeekly = output[lastWeeklyRange.upperBound...]
-        if let match = afterWeekly.range(of: #"\d+%"#, options: .regularExpression) {
-            weeklyPercent = String(afterWeekly[match])
+    // Look specifically for "Current week (all models)" to get the combined usage across all models
+    if let allModelsRange = output.range(of: "Current week (all models)", options: .backwards) {
+        let afterAllModels = output[allModelsRange.upperBound...]
+        if let match = afterAllModels.range(of: #"\d+%"#, options: .regularExpression) {
+            weeklyPercent = String(afterAllModels[match])
         }
     }
 
